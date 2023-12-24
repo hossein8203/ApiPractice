@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status, Query, Path
 from pydantic import BaseModel
 import json
 
@@ -34,8 +34,16 @@ class Product(BaseModel):
 # Operations
 
 
+@app.get("/")
+async def index():
+    return "start your request with '/api/' , you can see this app documents at '/docs' or '/redoc' "
+
+
 @app.get("/api/hello/")
-async def hello(name: str, family: str):
+async def hello(
+        name: str = Query(default='', min_length=3, max_length=20),
+        family: str = Query(min_length=3, max_length=20)
+):
     return {"message": f"hello {name} {family}"}
 
 
@@ -59,3 +67,10 @@ async def create_product(p: Product, response: Response):
 @app.get("/api/products/")
 async def show_product(response: Response):
     return {"products": product}
+
+
+@app.get("/api/products/{code}")
+async def show_product_with_code(code: int = Path(
+    ge=0
+)):
+    p = product
